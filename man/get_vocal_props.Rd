@@ -13,7 +13,7 @@ get_vocal_props(path = "examples/")
 A data frame containing the extracted call properties.
 }
 \description{
-This custom function automates the extraction of 15 temporal and spectral call properties for analyzing frog calls.
+This custom function automates the extraction of 15 commonly used temporal and spectral call properties for analyzing frog calls.
 Cleaned and standardized call samples must be placed in one folder, and the call format should be in .wav.
 }
 \examples{
