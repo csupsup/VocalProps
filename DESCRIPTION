@@ -1,0 +1,15 @@
+Package: VocalProps
+Title: Get Vocal Properties
+Version: 0.0.1
+Authors@R: 
+    person("Christian", "Supsup", , "supsupchristian@gmail.com", role = c("aut", "cre"))
+Description: This custom function automates the extraction of 15 temporal and spectral call properties for analyzing frog calls.
+License: MIT + file LICENSE
+Imports:
+    stats,
+    tuneR,
+    future.apply,
+    future
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
