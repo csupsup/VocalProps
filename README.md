@@ -1,4 +1,4 @@
-## Description
+## VocalProps
 This custom function automates the extraction of 15 commonly used temporal and spectral call properties for analyzing frog calls. 
 Cleaned and standardized call samples must be placed in one folder, and the call format should be in .wav. 
 
