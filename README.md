@@ -3,7 +3,7 @@ This custom function automates the extraction of 15 commonly used temporal and s
 Cleaned and standardized call samples must be placed in one folder, and the call format should be in .wav. 
 
 ## Installation
-```
+```r
 ## Check and install required packages
 req.pkgs <- c("devtools", "tuneR", "seewave", "future.apply", "furrr")
 
