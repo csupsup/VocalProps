@@ -66,6 +66,6 @@ prop.df <- get_vocal_props(path = call.dir)
 
 head(prop.df)
  
-## Write results to a csv 
+## Write results to a csv file
 write.csv(prop.df, "frog_call_prop.csv", row.names = FALSE)
 ```
