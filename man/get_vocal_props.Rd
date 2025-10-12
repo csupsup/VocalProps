@@ -23,7 +23,8 @@ prop.df <- get_vocal_props(path = call.dir)
 
 head(prop.df)
 
-write.csv(prop.df, "frog_call_prop.csv", row.names = FALSE)
+## write results to a csv 
+#write.csv(prop.df, "frog_call_prop.csv", row.names = FALSE)
 
 }
 \references{
