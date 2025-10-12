@@ -56,3 +56,16 @@ for (pkg in req.pkgs) {
 ## Install "VocalProps"
 install_github("csupsup/VocalProps")
 ```
+
+## Using the package
+```r
+## Access sample calls
+call.dir <- system.file("extdata", "calls", package = "VocalProps")
+
+prop.df <- get_vocal_props(path = call.dir)
+
+head(prop.df)
+ 
+## Write results to a csv 
+write.csv(prop.df, "frog_call_prop.csv", row.names = FALSE)
+```
