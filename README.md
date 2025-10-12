@@ -1,8 +1,5 @@
 ## VocalProps
-This custom function automates the extraction of 15 commonly used temporal and spectral call properties for analyzing frog calls. 
-Cleaned and standardized call samples must be placed in one folder, and the call format should be in .wav. 
-
-Here are the definitions for each call property:
+This custom function automates the extraction of 15 commonly used temporal and spectral call properties for analyzing frog calls. Below are the definitions for each call property:
 
 * **Average frequency (kHz)** – the mean frequency of the call signal, calculated as the average of all frequencies present. Provides an overall measure of frequency content.
 
@@ -44,6 +41,7 @@ Here are the definitions for each call property:
 4. Prasad VK, Chuang M-F, Das A, Ramesh K, Yi Y, Dinesh KP, Borzée A (2022) Coexisting good neighbours: acoustic and calling microhabitat niche partitioning in two elusive syntopic species of balloon frogs, Uperodon systoma and U. globulosus (Anura: Microhylidae) and potential of individual vocal signatures. BMC Zoology, 7: 27. 
 
 ## Installation
+Cleaned and standardized call samples must be placed in one folder, and the call format should be in .wav. 
 ```r
 ## Check and install required packages
 req.pkgs <- c("devtools", "tuneR", "seewave", "future.apply", "furrr")
