@@ -159,7 +159,7 @@ get_vocal_props <- function(path = "examples/") {
 
   cat("Total files to process:", length(call_files), "\n")
 
-  #@ Progress bar
+  ## Progress bar
   pb <- txtProgressBar(min = 0, max = length(call_files), style = 3)
 
   results_list <- future_lapply(
