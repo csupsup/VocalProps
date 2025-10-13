@@ -25,15 +25,17 @@
 #' Prasad VK, Chuang M-F, Das A, Ramesh K, Yi Y, Dinesh KP, Borzée A (2022) Coexisting good neighbours: acoustic and calling microhabitat niche partitioning in two elusive syntopic species of balloon frogs, Uperodon systoma and U. globulosus (Anura: Microhylidae) and potential of individual vocal signatures. BMC Zoology, 7: 27. 
 #'
 #' @importFrom stats fft
-#' @importFrom future plan multisession
+#' @importFrom future plan multisession sequential availableCores
 #' @importFrom tuneR readWave
 #' @importFrom future.apply future_lapply
-#' @importFrom utils write.csv
+#' @importFrom data.table data.table rbindlist
+#' @importFrom utils txtProgressBar setTxtProgressBar
+#' @importFrom zoo na.locf
 #' @return A data frame containing the extracted call properties.
 #' @export
 
 get_vocal_props <- function(path = "examples/") {
-  ## Function to extract call properties from all WAV files in a folder
+  ## Extract properties from a single WAV file
   get_properties <- function(call_file) {
     call <- readWave(call_file)
     call_data <- call@left
@@ -49,8 +51,7 @@ get_vocal_props <- function(path = "examples/") {
     ## Rise Time (ms)
     rise_time_index <- which(call_data[1:max_index] > 0.1 * max_amplitude)[1]
     if (is.na(rise_time_index)) rise_time_index <- 1
-    rise_time <- (max_index - rise_time_index) / fs
-    rise_time <- rise_time * 1000 
+    rise_time <- (max_index - rise_time_index) / fs * 1000
 
     ## Fall Time (ms)
     fall_time_index <- which(call_data[max_index:end_index] < 0.1 * max_amplitude)[1]
@@ -59,12 +60,10 @@ get_vocal_props <- function(path = "examples/") {
     } else {
       fall_time_index <- end_index
     }
-    fall_time <- (fall_time_index - max_index) / fs
-    fall_time <- fall_time * 1000
+    fall_time <- (fall_time_index - max_index) / fs * 1000
 
     ## Call Duration (ms)
-    call_duration <- (end_index - rise_time_index) / fs
-    call_duration <- call_duration * 1000
+    call_duration <- (end_index - rise_time_index) / fs * 1000
 
     ## Power (dB)
     max_power <- max(call_data^2)
@@ -74,48 +73,54 @@ get_vocal_props <- function(path = "examples/") {
     fft_result <- fft(call_data)
     fft_magnitude <- Mod(fft_result)
     freq <- seq(0, N - 1) * (fs / N)
-    half_length <- N / 2
+    half_length <- floor(N / 2)
 
-    ## Limit to positive frequencies
     mag_half <- fft_magnitude[1:half_length]
     freq_half <- freq[1:half_length]
 
-    ## Dominant and peak frequencies (in kHz)
+    ## Dominant and low peak frequencies (positive frequencies)
     peak_indices <- order(mag_half, decreasing = TRUE)
-    dominant_freq <- freq_half[peak_indices[1]] / 1000  
-    low_peak_frequency <- freq_half[peak_indices[2]] / 1000
-    high_peak_frequency <- freq_half[which.max(fft_magnitude[(half_length + 1):N]) + half_length] / 1000
+    dominant_freq <- freq_half[peak_indices[1]] / 1000
+    low_peak_frequency <- if (length(peak_indices) > 1) freq_half[peak_indices[2]] / 1000 else NA
 
-    ## Average frequency and wavelength (in kHz)
+    ## High peak frequency: largest spectral peak in upper half
+    upper_mag <- fft_magnitude[(half_length + 1):N]
+    upper_freq <- freq[(half_length + 1):N]
+    if (length(upper_mag) > 0 && any(upper_mag > 0)) {
+      high_idx <- which.max(upper_mag)
+      high_peak_frequency <- upper_freq[high_idx] / 1000
+    } else {
+      high_peak_frequency <- NA
+    }
+
+    ## Average frequency and wavelength
     avg_freq <- mean(freq_half[mag_half > 0]) / 1000
-    avg_wavelength <- 343 / (avg_freq * 1000)  
+    avg_wavelength <- 343 / (avg_freq * 1000)
 
-    ## Spectral Centroid (in kHz)
+    ## Spectral centroid and bandwidth
     spectral_centroid <- sum(freq_half * mag_half) / sum(mag_half) / 1000
-
-    ## Spectral Bandwidth (BWspread) in kHz
     BWspread <- sqrt(sum(((freq_half - spectral_centroid * 1000)^2) * mag_half) / sum(mag_half)) / 1000
 
     ## Zero Crossing Rate
     sgn <- sign(call_data)
-    for (i in 2:length(sgn)) {
-      if (sgn[i] == 0) sgn[i] <- sgn[i - 1]
-    }
+    sgn[sgn == 0] <- NA
+    sgn <- na.locf(sgn, na.rm = FALSE)
+    sgn[is.na(sgn)] <- 0
     crossings <- sum(abs(diff(sgn))) / 2
     zcr <- (2 * crossings) / (N - 1)
     zcr_per_sec <- zcr * fs
 
-    ## Dominant call rate estimation (kHz per second)
+    ## Dominant call rate estimation
     dominant_frequency_indices <- which(freq_half == dominant_freq * 1000)
-    if (length(dominant_frequency_indices) > 0) {
+    rate_of_dominant_call <- if (length(dominant_frequency_indices) > 0) {
       occurrences <- length(dominant_frequency_indices)
-      rate_of_dominant_call <- (dominant_freq * occurrences) / (fs / N)
+      (dominant_freq * occurrences) / (fs / N)
     } else {
-      rate_of_dominant_call <- NA
+      NA
     }
 
-    ## Combine into dataframe
-    call_properties <- data.frame(
+    ## Combine into a data.table
+    call_properties <- data.table(
       File_Name = basename(call_file),
       Average_Frequency = avg_freq,
       Average_Wavelength = avg_wavelength,
@@ -129,48 +134,48 @@ get_vocal_props <- function(path = "examples/") {
       Low_Peak_Frequency = low_peak_frequency,
       High_Peak_Frequency = high_peak_frequency,
       Spectral_Centroid = spectral_centroid,
-      BWspread = BWspread,
+      BW_Spread = BWspread,
       Zero_Crossing_Rate = zcr_per_sec,
       Rate_of_Dominant_call = rate_of_dominant_call
     )
-
-    ## Format numeric values
-    call_properties[] <- lapply(call_properties, function(x) {
-      if (is.numeric(x)) format(x, scientific = FALSE) else x
-    })
 
     return(call_properties)
   }
 
   ## Main Processing
-  start_time <- Sys.time()
-
   call_files <- list.files(path, pattern = "\\.wav$", full.names = TRUE)
   if (length(call_files) == 0) {
     warning("No .wav files found in path: ", path)
     return(NULL)
   }
-  
+
   ## Parallel setup
-  plan("multisession")
-  on.exit(plan("sequential"), add = TRUE)
+  num_cores <- availableCores(logical = FALSE)
+  plan(multisession, workers = num_cores)
+  on.exit({
+    plan(sequential)
+    gc()
+  }, add = TRUE)
 
   cat("Total files to process:", length(call_files), "\n")
 
-  progress_function <- function(file_name) {
-    cat("Completed:", basename(file_name), "\n")
-  }
+  #@ Progress bar
+  pb <- txtProgressBar(min = 0, max = length(call_files), style = 3)
 
-  results_list <- future_lapply(call_files, function(file) {
-    progress_function(file)
-    get_properties(file)
-  })
+  results_list <- future_lapply(
+    call_files,
+    function(file) {
+      res <- get_properties(file)
+      setTxtProgressBar(pb, which(call_files == file))
+      return(res)
+    },
+    future.seed = TRUE
+  )
 
-  results_df <- do.call(rbind, results_list)
+  close(pb)
+  results_df <- rbindlist(results_list, fill = TRUE)
 
-  end_time <- Sys.time()
-  processing_time <- end_time - start_time
-  cat("Processing completed in:", round(as.numeric(processing_time, units = "secs"), 2), "seconds.\n")
-
+  cat("\nProcessing completed.\n")
   return(results_df)
 }
+
