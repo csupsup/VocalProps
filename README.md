@@ -23,8 +23,6 @@ This custom function automates the extraction of 15 commonly used temporal and s
 
 * **High peak frequency (kHz)** – the frequency corresponding to the largest spectral peak in the upper half of the spectrum, representing the most intense overtone or feature of the call.
 
-* **Signal bandwidth** – the difference between the highest and lowest frequencies present in the call signal. Indicates the range of frequencies captured (Hz).
-
 * **Spectral centroid (kHz)** – the weighted mean frequency of the spectrum, with weights given by spectral magnitudes. Often correlates with perceived brightness of the call.
 
 * **Signal Bandwith(kHz)** – spectral spread around the centroid, representing how dispersed the energy is. Wider bandwidth indicates more complex calls.
