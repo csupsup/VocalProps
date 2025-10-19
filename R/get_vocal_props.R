@@ -16,6 +16,8 @@
 #' #write.csv(prop.df, "frog_call_prop.csv", row.names = FALSE)
 #'
 #' @references
+#' Gingras B, Fitch WT (2013). A three-parameter model for classifying anurans into four genera based on advertisement calls. The Journal of the Acoustical Society of America, 133:547-559.
+#' 
 #' Köhler J, Jansen M, Rodríguez A, Kok PJR, Toledo LF, Emmrich M, Glaw F, Haddad CFB, Rödel M-O, Vences M (2017). The use of bioacoustics in anuran taxonomy: theory, terminology, methods and recommendations for best practice. Zootaxa 4251: 1–124. https://doi.org/10.11646/zootaxa.4251.1.1
 #'
 #' Xie J, Towsey M, Zhang J, Roe P (2018) Frog call classification: a survey. Artificial Intelligence Review, 49: 375–391.
