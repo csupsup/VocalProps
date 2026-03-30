@@ -38,6 +38,11 @@ This custom function automates the extraction of 15 commonly used temporal and s
 4. Xie J, Towsey M, Zhang J, Roe P (2020) Investigation of Acoustic and Visual Features for Frog Call Classification. Journal of Signal Processing Systems, 92: 23–36.
 5. Prasad VK, Chuang M-F, Das A, Ramesh K, Yi Y, Dinesh KP, Borzée A (2022) Coexisting good neighbours: acoustic and calling microhabitat niche partitioning in two elusive syntopic species of balloon frogs, Uperodon systoma and U. globulosus (Anura: Microhylidae) and potential of individual vocal signatures. BMC Zoology, 7: 27. 
 
+## Citation
+The implementation of this package is documented in our recent work on a new Philippine miniaturized frog. Cite this paper when using the package:
+
+Meneses, C.G., Pitogo, K.M.P, Decena, S.C.P, Supsup, C.E., and Brown, R.M. (in press). A new miniaturised *Platymantis* (Amphibia: Anura: Ceratobatrachidae) from Sibuyan and Tablas islands, Romblon Island Group, Philippines. Raffles Bulletin of Zoology. 
+
 ## Installation
 Cleaned and standardized call samples must be placed in one folder, and the call format should be in .wav. 
 ```r
